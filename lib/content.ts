@@ -152,8 +152,11 @@ export const defaultContent: SiteContent = {
 export async function getContent(): Promise<SiteContent> {
   try {
     const redis = getRedis();
-    const data = await redis.get<SiteContent>(CONTENT_KEY);
-    if (data) return data;
+    const raw = await redis.get(CONTENT_KEY);
+    if (raw) {
+      const data: SiteContent = typeof raw === "string" ? JSON.parse(raw) : (raw as SiteContent);
+      return data;
+    }
   } catch {
     // Redis not configured or error — fall back to defaults
   }
@@ -161,6 +164,9 @@ export async function getContent(): Promise<SiteContent> {
 }
 
 export async function saveContent(content: SiteContent): Promise<void> {
+  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+    throw new Error("KV_REST_API_URL или KV_REST_API_TOKEN не настроены в Vercel");
+  }
   const redis = getRedis();
-  await redis.set(CONTENT_KEY, content);
+  await redis.set(CONTENT_KEY, JSON.stringify(content));
 }

@@ -43,8 +43,9 @@ export async function POST(request: NextRequest) {
   try {
     await saveContent(body);
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
     console.error("[content] saveContent failed:", err);
-    return NextResponse.json({ error: "Ошибка записи в базу данных" }, { status: 500 });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });
