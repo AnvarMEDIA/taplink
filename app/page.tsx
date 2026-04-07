@@ -9,7 +9,7 @@ const profile = {
   name: "METAL CITY",
   username: "@metalcity_uz",
   bio: "Оптовая и розничная продажа металлопроката в Ташкенте. Трубы, арматура, швеллер, профиль и фасонные изделия.",
-  avatar: "/logo.svg",
+  avatar: "https://play-lh.googleusercontent.com/W8Vvm1dDt5p9J_aOj0c5oiTsxfneKxRgWnPPgHvNlR8j95j-Sdx04zjBSqzWSEjTsyE",
   initials: "MC",
   verified: true,
   status: "Пн–Сб · 09:00 – 18:00",
@@ -178,16 +178,16 @@ export default function Home() {
               </div>
 
               {/* Logo avatar */}
-              <div className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
-                   style={{ background: "linear-gradient(135deg, #1a0e05, #2d1505)", boxShadow: "0 0 40px rgba(249,115,22,0.25), 0 0 80px rgba(249,115,22,0.08)" }}>
+              <div className="relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center shadow-2xl"
+                   style={{ background: "#ffffff", boxShadow: "0 0 40px rgba(249,115,22,0.25), 0 0 80px rgba(249,115,22,0.08)" }}>
                 {profile.avatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={profile.avatar}
                     alt="Metal City"
-                    width={68}
-                    height={68}
-                    style={{ filter: "invert(1) sepia(1) saturate(4) hue-rotate(340deg) brightness(1.05)" }}
+                    width={96}
+                    height={96}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
                   />
                 ) : (
                   <span className="text-2xl font-black text-white">{profile.initials}</span>
