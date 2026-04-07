@@ -164,8 +164,8 @@ export async function getContent(): Promise<SiteContent> {
 }
 
 export async function saveContent(content: SiteContent): Promise<void> {
-  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-    throw new Error("KV_REST_API_URL или KV_REST_API_TOKEN не настроены в Vercel");
+  if (!process.env.kv_KV_REST_API_URL || !process.env.kv_KV_REST_API_TOKEN) {
+    throw new Error("kv_KV_REST_API_URL или kv_KV_REST_API_TOKEN не настроены в Vercel");
   }
   const redis = getRedis();
   await redis.set(CONTENT_KEY, JSON.stringify(content));
