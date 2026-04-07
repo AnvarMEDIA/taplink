@@ -4,14 +4,24 @@ import SocialIcon from "@/components/SocialIcon";
 import { getContent } from "@/lib/content";
 import { getIcon } from "@/lib/icons";
 
-export const revalidate = 60; // ISR: revalidate every 60s
+export const dynamic = "force-dynamic"; // always fresh after revalidatePath
 
 export default async function Home() {
   const content = await getContent();
   const { profile, stats, products, cta, links, socials } = content;
 
-  const enabledCta = cta.filter(c => c.enabled);
+  const enabledCta   = cta.filter(c => c.enabled);
   const enabledLinks = links.filter(l => l.enabled);
+  const hasLinks     = enabledLinks.length > 0;
+  const hasSocials   = socials.length > 0;
+  const hasProducts  = products.length > 0;
+  const hasStats     = stats.length > 0;
+
+  // CTA grid: 1 button → full width, 2+ → 2 columns
+  const ctaGridCls = enabledCta.length === 1 ? "grid grid-cols-1" : "grid grid-cols-2";
+
+  // Stats grid: adapt columns to item count (max 3)
+  const statsCols = Math.min(stats.length, 3) || 1;
 
   return (
     <main className="relative min-h-screen noise safe-bottom" style={{ background: "#0c0905" }}>
@@ -47,17 +57,23 @@ export default async function Home() {
                 <div className="w-full h-full rounded-full" style={{ background: "#0c0905" }} />
               </div>
 
-              {/* Avatar image */}
-              <div className="relative w-28 h-28 rounded-full overflow-hidden"
-                   style={{ background: "#fff", boxShadow: "0 0 0 0 transparent, 0 8px 32px rgba(0,0,0,0.4)" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={profile.avatar}
-                  alt={profile.name}
-                  width={112}
-                  height={112}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
+              {/* Avatar: image or initials fallback */}
+              <div className="relative w-28 h-28 rounded-full overflow-hidden flex items-center justify-center"
+                   style={{ background: profile.avatar ? "#fff" : "linear-gradient(135deg,#c2410c,#7f1d1d)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+                {profile.avatar ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={profile.avatar}
+                    alt={profile.name}
+                    width={112}
+                    height={112}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <span className="text-white text-3xl font-black tracking-tight select-none">
+                    {(profile.name || "MC").slice(0, 2).toUpperCase()}
+                  </span>
+                )}
               </div>
 
               {/* Live dot */}
@@ -68,7 +84,7 @@ export default async function Home() {
             {/* Name + verified */}
             <div className="flex items-center justify-center gap-2 mb-1">
               <h1 className="text-2xl font-black text-white tracking-tight">
-                {profile.name}
+                {profile.name || "METAL CITY"}
               </h1>
               {profile.verified && (
                 <div className="tip flex-shrink-0" data-tip="Официальный аккаунт">
@@ -85,99 +101,116 @@ export default async function Home() {
               )}
             </div>
 
-            <p className="text-xs font-bold tracking-[0.18em] uppercase mb-3"
-               style={{ color: "#f97316" }}>
-              {profile.username}
-            </p>
+            {profile.username && (
+              <p className="text-xs font-bold tracking-[0.18em] uppercase mb-3"
+                 style={{ color: "#f97316" }}>
+                {profile.username}
+              </p>
+            )}
 
-            <p className="text-sm leading-relaxed mb-4 mx-auto max-w-[280px]"
-               style={{ color: "#b07048" }}>
-              {profile.bio}
-            </p>
+            {profile.bio && (
+              <p className="text-sm leading-relaxed mb-4 mx-auto max-w-[280px]"
+                 style={{ color: "#b07048" }}>
+                {profile.bio}
+              </p>
+            )}
 
             {/* Hours */}
-            <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5"
-                 style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)" }}>
-              <div className="status-dot w-1.5 h-1.5 rounded-full flex-shrink-0"
-                   style={{ background: "#f97316" }} />
-              <span className="text-[12px] font-semibold" style={{ color: "#fbbf24" }}>
-                {profile.status}
-              </span>
-            </div>
+            {profile.status && (
+              <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5"
+                   style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)" }}>
+                <div className="status-dot w-1.5 h-1.5 rounded-full flex-shrink-0"
+                     style={{ background: "#f97316" }} />
+                <span className="text-[12px] font-semibold" style={{ color: "#fbbf24" }}>
+                  {profile.status}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* ━━━ STATS ━━━ */}
-          <div className="su d2 glass rounded-2xl overflow-hidden">
-            <div className="grid grid-cols-3">
-              {stats.map((s, i) => (
-                <div key={s.label} className="text-center py-4"
-                     style={{ borderRight: i < stats.length - 1 ? "1px solid rgba(249,115,22,0.1)" : "none" }}>
-                  <div className="text-xl font-black grad-text leading-none mb-1">{s.value}</div>
-                  <div className="section-label">{s.label}</div>
-                </div>
-              ))}
+          {hasStats && (
+            <div className="su d2 glass rounded-2xl overflow-hidden">
+              <div style={{ display: "grid", gridTemplateColumns: `repeat(${statsCols}, 1fr)` }}>
+                {stats.map((s, i) => (
+                  <div key={i} className="text-center py-4"
+                       style={{ borderRight: i < stats.length - 1 ? "1px solid rgba(249,115,22,0.1)" : "none" }}>
+                    <div className="text-xl font-black grad-text leading-none mb-1">{s.value}</div>
+                    <div className="section-label">{s.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* ━━━ SOCIAL ICONS ━━━ */}
-          <div className="su d3 flex justify-center gap-3 py-1">
-            {socials.map(s => (
-              <SocialIcon key={s.label} href={s.href} label={s.label} icon={getIcon(s.iconType, "sm")} />
-            ))}
-          </div>
-
-          {/* ━━━ PRIMARY CTA ━━━ */}
-          <div className="su d4 grid grid-cols-2 gap-3">
-            {enabledCta.map((btn, i) => (
-              <a
-                key={btn.id}
-                href={btn.href}
-                target={btn.cls === "cta-call" ? "_self" : "_blank"}
-                rel={btn.cls === "cta-call" ? undefined : "noopener noreferrer"}
-                className={`cta-btn ${btn.cls} su`}
-                style={{ animationDelay: `${0.29 + i * 0.08}s` }}
-              >
-                {getIcon(btn.iconType, "lg")}
-                <span>{btn.label}</span>
-              </a>
-            ))}
-          </div>
-
-          {/* ━━━ PRODUCTS ━━━ */}
-          <div className="su d5 glass rounded-2xl px-4 py-4">
-            <p className="section-label mb-3">Ассортимент</p>
-            <div className="flex flex-wrap gap-2">
-              {products.map(p => (
-                <span key={p} className="prod-tag">{p}</span>
+          {hasSocials && (
+            <div className="su d3 flex justify-center gap-3 py-1">
+              {socials.map(s => (
+                <SocialIcon key={s.label} href={s.href} label={s.label} icon={getIcon(s.iconType, "sm")} />
               ))}
             </div>
-          </div>
+          )}
 
-          {/* ━━━ SECTION LABEL ━━━ */}
-          <div className="su d6 flex items-center gap-3 px-1">
-            <div className="flex-1 divider" />
-            <span className="section-label">Контакты и ссылки</span>
-            <div className="flex-1 divider" />
-          </div>
+          {/* ━━━ PRIMARY CTA ━━━ */}
+          {enabledCta.length > 0 && (
+            <div className={`su d4 ${ctaGridCls} gap-3`}>
+              {enabledCta.map((btn, i) => (
+                <a
+                  key={btn.id}
+                  href={btn.href}
+                  target={btn.cls === "cta-call" ? "_self" : "_blank"}
+                  rel={btn.cls === "cta-call" ? undefined : "noopener noreferrer"}
+                  className={`cta-btn ${btn.cls} su`}
+                  style={{ animationDelay: `${0.29 + i * 0.08}s` }}
+                >
+                  {getIcon(btn.iconType, "lg")}
+                  <span>{btn.label}</span>
+                </a>
+              ))}
+            </div>
+          )}
 
-          {/* ━━━ LINKS ━━━ */}
-          <div className="space-y-2.5">
-            {enabledLinks.map((link, i) => (
-              <LinkCard
-                key={link.id}
-                href={link.href}
-                title={link.title}
-                subtitle={link.subtitle}
-                iconBg={link.iconBg}
-                accentColor={link.accentColor}
-                badge={link.badge}
-                badgeGreen={link.badgeGreen}
-                external={link.external !== false}
-                icon={getIcon(link.iconType)}
-                delay={i + 7}
-              />
-            ))}
-          </div>
+          {/* ━━━ PRODUCTS ━━━ */}
+          {hasProducts && (
+            <div className="su d5 glass rounded-2xl px-4 py-4">
+              <p className="section-label mb-3">Ассортимент</p>
+              <div className="flex flex-wrap gap-2">
+                {products.map((p, i) => (
+                  <span key={i} className="prod-tag">{p}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ━━━ SECTION LABEL + LINKS ━━━ */}
+          {hasLinks && (
+            <>
+              <div className="su d6 flex items-center gap-3 px-1">
+                <div className="flex-1 divider" />
+                <span className="section-label">Контакты и ссылки</span>
+                <div className="flex-1 divider" />
+              </div>
+
+              <div className="space-y-2.5">
+                {enabledLinks.map((link, i) => (
+                  <LinkCard
+                    key={link.id}
+                    href={link.href}
+                    title={link.title}
+                    subtitle={link.subtitle}
+                    iconBg={link.iconBg}
+                    accentColor={link.accentColor}
+                    badge={link.badge}
+                    badgeGreen={link.badgeGreen}
+                    external={link.external !== false}
+                    icon={getIcon(link.iconType)}
+                    delay={i + 7}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           {/* ━━━ FOOTER ━━━ */}
           <div className="su text-center pt-4 pb-2" style={{ animationDelay: "1.2s" }}>

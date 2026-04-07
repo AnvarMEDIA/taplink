@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { SessionData, sessionOptions } from "@/lib/session";
 import { getContent, saveContent, SiteContent } from "@/lib/content";
 
@@ -47,6 +48,9 @@ export async function POST(request: NextRequest) {
     console.error("[content] saveContent failed:", err);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
+
+  // Immediately invalidate the cached home page
+  revalidatePath("/");
 
   return NextResponse.json({ ok: true });
 }

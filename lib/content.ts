@@ -149,14 +149,58 @@ export const defaultContent: SiteContent = {
   ],
 };
 
+// Deep-merge saved content with defaults so missing/null fields never crash the page
+function mergeWithDefaults(raw: unknown): SiteContent {
+  const s = (typeof raw === "object" && raw !== null ? raw : {}) as Partial<SiteContent>;
+  return {
+    profile: {
+      ...defaultContent.profile,
+      ...(s.profile && typeof s.profile === "object" ? s.profile : {}),
+    },
+    stats: Array.isArray(s.stats) && s.stats.length > 0
+      ? s.stats.map(st => ({ label: st?.label ?? "", value: st?.value ?? "" }))
+      : defaultContent.stats,
+    products: Array.isArray(s.products) ? s.products.filter(Boolean) : defaultContent.products,
+    cta: Array.isArray(s.cta)
+      ? s.cta.map(c => ({
+          id: c?.id ?? "cta",
+          href: c?.href ?? "#",
+          label: c?.label ?? "",
+          cls: c?.cls ?? "cta-call",
+          iconType: c?.iconType ?? "phone",
+          enabled: c?.enabled ?? true,
+        }))
+      : defaultContent.cta,
+    links: Array.isArray(s.links)
+      ? s.links.map(l => ({
+          id: l?.id ?? "link",
+          href: l?.href ?? "#",
+          title: l?.title ?? "",
+          subtitle: l?.subtitle ?? "",
+          iconBg: l?.iconBg ?? "from-orange-600 to-red-700",
+          accentColor: l?.accentColor ?? "#f97316",
+          iconType: l?.iconType ?? "website",
+          badge: l?.badge,
+          badgeGreen: l?.badgeGreen ?? false,
+          external: l?.external ?? true,
+          enabled: l?.enabled ?? true,
+        }))
+      : defaultContent.links,
+    socials: Array.isArray(s.socials)
+      ? s.socials.map(s => ({
+          href: s?.href ?? "#",
+          label: s?.label ?? "",
+          iconType: s?.iconType ?? "website",
+        }))
+      : defaultContent.socials,
+  };
+}
+
 export async function getContent(): Promise<SiteContent> {
   try {
     const redis = getRedis();
     const raw = await redis.get(CONTENT_KEY);
-    if (raw) {
-      const data: SiteContent = typeof raw === "string" ? JSON.parse(raw) : (raw as SiteContent);
-      return data;
-    }
+    if (raw) return mergeWithDefaults(typeof raw === "string" ? JSON.parse(raw) : raw);
   } catch {
     // Redis not configured or error — fall back to defaults
   }
