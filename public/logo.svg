@@ -1,0 +1,43 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Left blade (M left stroke) -->
+  <polygon
+    points="28,38 42,18 52,18 52,30 46,30 46,138 52,138 52,150 42,170 28,150 34,138 34,30"
+    fill="white"
+  />
+
+  <!-- Right blade (M right stroke, mirrored) -->
+  <polygon
+    points="172,38 158,18 148,18 148,30 154,30 154,138 148,138 148,150 158,170 172,150 166,138 166,30"
+    fill="white"
+  />
+
+  <!-- Outer C arc -->
+  <path
+    d="M 148,42 A 58,58 0 1,0 148,158"
+    stroke="white"
+    stroke-width="11"
+    fill="none"
+    stroke-linecap="butt"
+  />
+
+  <!-- Middle C arc -->
+  <path
+    d="M 136,56 A 43,43 0 1,0 136,144"
+    stroke="white"
+    stroke-width="9"
+    fill="none"
+    stroke-linecap="butt"
+  />
+
+  <!-- Inner checkmark / C center mark -->
+  <path
+    d="M 72,93 L 84,108 L 112,72"
+    stroke="white"
+    stroke-width="9"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+</svg>

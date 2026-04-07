@@ -9,7 +9,7 @@ const profile = {
   name: "METAL CITY",
   username: "@metalcity_uz",
   bio: "Оптовая и розничная продажа металлопроката в Ташкенте. Трубы, арматура, швеллер, профиль и фасонные изделия.",
-  avatar: null as string | null,
+  avatar: "/logo.svg",
   initials: "MC",
   verified: true,
   status: "Пн–Сб · 09:00 – 18:00",
@@ -177,14 +177,21 @@ export default function Home() {
                 <div className="w-full h-full rounded-full" style={{ background: "#0c0905" }} />
               </div>
 
-              {/* MC monogram */}
-              <div className="relative w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-2xl select-none"
-                   style={{ background: "linear-gradient(135deg, #c2410c, #7f1d1d)", boxShadow: "0 0 40px rgba(249,115,22,0.25), 0 0 80px rgba(249,115,22,0.08)" }}>
-                <span className="text-white font-black text-[13px] tracking-[0.2em] leading-none">METAL</span>
-                <span className="font-black text-[22px] leading-tight tracking-widest"
-                      style={{ background: "linear-gradient(90deg, #f97316, #fbbf24)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  CITY
-                </span>
+              {/* Logo avatar */}
+              <div className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+                   style={{ background: "linear-gradient(135deg, #1a0e05, #2d1505)", boxShadow: "0 0 40px rgba(249,115,22,0.25), 0 0 80px rgba(249,115,22,0.08)" }}>
+                {profile.avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.avatar}
+                    alt="Metal City"
+                    width={68}
+                    height={68}
+                    style={{ filter: "invert(1) sepia(1) saturate(4) hue-rotate(340deg) brightness(1.05)" }}
+                  />
+                ) : (
+                  <span className="text-2xl font-black text-white">{profile.initials}</span>
+                )}
               </div>
 
               {/* Online dot */}
