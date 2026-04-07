@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
 import { SessionData, sessionOptions } from "@/lib/session";
 import { getContent, saveContent, SiteContent } from "@/lib/content";
 
-async function checkAuth(request: NextRequest, response: NextResponse): Promise<boolean> {
-  const session = await getIronSession<SessionData>(request, response, sessionOptions);
-  return session.isAdmin === true;
+async function checkAuth(): Promise<boolean> {
+  try {
+    const cookieStore = cookies();
+    const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
+    return session.isAdmin === true;
+  } catch {
+    return false;
+  }
 }
 
 // GET — load current content
-export async function GET(request: NextRequest) {
-  const response = NextResponse.next();
-  if (!(await checkAuth(request, response))) {
+export async function GET(_request: NextRequest) {
+  if (!(await checkAuth())) {
     return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   }
   const content = await getContent();
@@ -20,8 +25,7 @@ export async function GET(request: NextRequest) {
 
 // POST — save new content
 export async function POST(request: NextRequest) {
-  const res = NextResponse.next();
-  if (!(await checkAuth(request, res))) {
+  if (!(await checkAuth())) {
     return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   }
 
@@ -32,11 +36,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Неверный JSON" }, { status: 400 });
   }
 
-  // Basic validation
   if (!body.profile || !body.links || !body.stats) {
     return NextResponse.json({ error: "Неполные данные" }, { status: 400 });
   }
 
-  await saveContent(body);
+  try {
+    await saveContent(body);
+  } catch (err) {
+    console.error("[content] saveContent failed:", err);
+    return NextResponse.json({ error: "Ошибка записи в базу данных" }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true });
 }
