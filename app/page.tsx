@@ -262,9 +262,8 @@ export default function Home() {
           {/* ── Footer ── */}
           <div className="slide-up text-center pt-6 pb-2" style={{ animationDelay: "1.2s", opacity: 0 }}>
             <p className="text-gray-600 text-xs">
-              Made with{" "}
-              <span className="gradient-text font-medium">✦ love</span>
-              {" "}& Next.js
+              Created by{" "}
+              <span className="gradient-text font-medium">MAZE</span>
             </p>
           </div>
         </div>
