@@ -1,6 +1,7 @@
 import ParticlesBackground from "@/components/ParticlesBackground";
 import LinkCard from "@/components/LinkCard";
 import SocialIcon from "@/components/SocialIcon";
+import TrackVisit from "@/components/TrackVisit";
 import { getContent } from "@/lib/content";
 import { getIcon } from "@/lib/icons";
 
@@ -25,6 +26,7 @@ export default async function Home() {
 
   return (
     <main className="relative min-h-screen noise safe-bottom" style={{ background: "#0c0905" }}>
+      <TrackVisit />
       <ParticlesBackground />
 
       {/* Background */}

@@ -4,13 +4,14 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { SiteContent, LinkItem, CtaItem } from "@/lib/content";
 import { ICON_LABELS } from "@/lib/icons";
+import AnalyticsPanel from "./AnalyticsPanel";
 
 interface Props {
   initialContent: SiteContent;
   token: string;
 }
 
-type Tab = "profile" | "links" | "stats";
+type Tab = "profile" | "links" | "stats" | "analytics";
 type ToastType = "success" | "error";
 
 function Toast({ msg, type }: { msg: string; type: ToastType }) {
@@ -182,9 +183,10 @@ export default function DashboardClient({ initialContent, token }: Props) {
   }, []);
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "profile", label: "Профиль" },
-    { key: "links",   label: "Ссылки"  },
-    { key: "stats",   label: "Контент" },
+    { key: "profile",   label: "Профиль"    },
+    { key: "links",     label: "Ссылки"     },
+    { key: "stats",     label: "Контент"    },
+    { key: "analytics", label: "Статистика" },
   ];
 
   return (
@@ -461,6 +463,9 @@ export default function DashboardClient({ initialContent, token }: Props) {
             </Section>
           </div>
         )}
+
+        {/* ══ ANALYTICS TAB ══ */}
+        {tab === "analytics" && <AnalyticsPanel />}
 
         {/* Floating save */}
         <div className="fixed bottom-6 right-4 z-40">
