@@ -218,7 +218,7 @@ export default function Home() {
           {/* ── STATS ── */}
           <div className="su d2 rounded-2xl border overflow-hidden"
                style={{ background: "rgba(255,140,30,0.03)", borderColor: "rgba(249,115,22,0.1)" }}>
-            <div className="grid grid-cols-3 divide-x divide-orange-900/30">
+            <div className="grid grid-cols-3">
               {stats.map((s, i) => (
                 <div key={s.label} className="text-center py-4 px-2"
                      style={{ borderRight: i < stats.length - 1 ? "1px solid rgba(249,115,22,0.1)" : "none" }}>
