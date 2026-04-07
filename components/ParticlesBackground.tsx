@@ -3,15 +3,12 @@
 import { useEffect, useRef } from "react";
 
 interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+  x: number; y: number;
+  vx: number; vy: number;
   radius: number;
   alpha: number;
   color: string;
-  life: number;
-  maxLife: number;
+  life: number; maxLife: number;
 }
 
 export default function ParticlesBackground() {
@@ -23,7 +20,8 @@ export default function ParticlesBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const colors = ["#a855f7", "#ec4899", "#f97316", "#6366f1", "#06b6d4"];
+    // Industrial warm palette
+    const colors = ["#f97316", "#dc2626", "#d97706", "#f59e0b", "#ea580c"];
     const particles: Particle[] = [];
     let animId: number;
 
@@ -34,14 +32,14 @@ export default function ParticlesBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    const createParticle = (): Particle => {
-      const maxLife = 120 + Math.random() * 180;
+    const mk = (): Particle => {
+      const maxLife = 100 + Math.random() * 160;
       return {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4 - 0.2,
-        radius: Math.random() * 2 + 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3 - 0.15,
+        radius: Math.random() * 1.5 + 0.4,
         alpha: 0,
         color: colors[Math.floor(Math.random() * colors.length)],
         life: 0,
@@ -49,26 +47,25 @@ export default function ParticlesBackground() {
       };
     };
 
-    // Initialize
-    for (let i = 0; i < 60; i++) {
-      const p = createParticle();
+    for (let i = 0; i < 45; i++) {
+      const p = mk();
       p.life = Math.random() * p.maxLife;
-      p.alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.6;
+      p.alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.5;
       particles.push(p);
     }
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw connections
+      // Connections
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 100) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 120) * 0.08})`;
+            ctx.strokeStyle = `rgba(249,115,22,${(1 - d / 100) * 0.06})`;
             ctx.lineWidth = 0.5;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -77,33 +74,29 @@ export default function ParticlesBackground() {
         }
       }
 
-      // Draw particles
       particles.forEach((p, idx) => {
         p.life++;
         p.x += p.vx;
         p.y += p.vy;
-        p.alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.6;
+        p.alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.5;
 
-        if (p.life >= p.maxLife) {
-          particles[idx] = createParticle();
-          return;
-        }
-
+        if (p.life >= p.maxLife) { particles[idx] = mk(); return; }
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
+        const hex = Math.floor(p.alpha * 255).toString(16).padStart(2, "0");
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 4);
+        g.addColorStop(0, p.color + hex);
+        g.addColorStop(1, p.color + "00");
         ctx.beginPath();
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 3);
-        gradient.addColorStop(0, p.color + Math.floor(p.alpha * 255).toString(16).padStart(2, "0"));
-        gradient.addColorStop(1, p.color + "00");
-        ctx.fillStyle = gradient;
-        ctx.arc(p.x, p.y, p.radius * 3, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.arc(p.x, p.y, p.radius * 4, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
-        ctx.fillStyle = p.color + Math.floor(p.alpha * 255).toString(16).padStart(2, "0");
+        ctx.fillStyle = p.color + hex;
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -112,26 +105,11 @@ export default function ParticlesBackground() {
     };
 
     draw();
-
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      id="particles"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
-    />
-  );
+  return <canvas ref={canvasRef} id="particles" />;
 }
