@@ -6,8 +6,9 @@ interface LinkCardProps {
   title: string;
   subtitle?: string;
   iconBg?: string;
+  accentColor?: string;
   badge?: string;
-  badgeRed?: boolean;
+  badgeGreen?: boolean;
   external?: boolean;
   delay?: number;
 }
@@ -18,8 +19,9 @@ export default function LinkCard({
   title,
   subtitle,
   iconBg = "from-orange-600 to-red-700",
+  accentColor = "#f97316",
   badge,
-  badgeRed = false,
+  badgeGreen = false,
   external = true,
   delay = 0,
 }: LinkCardProps) {
@@ -28,46 +30,42 @@ export default function LinkCard({
       href={href}
       target={external ? "_blank" : "_self"}
       rel={external ? "noopener noreferrer" : undefined}
-      className="su shimmer card-hover press block w-full glass rounded-2xl p-[1px] no-underline"
-      style={{ animationDelay: `${delay * 0.1}s` }}
+      className="su link-card"
+      style={
+        { "--accent": accentColor, animationDelay: `${delay * 0.08}s` } as React.CSSProperties
+      }
     >
-      {/* Inner */}
-      <div className="rounded-2xl px-4 py-3.5 flex items-center gap-4"
-           style={{ background: "linear-gradient(135deg, rgba(255,140,30,0.04) 0%, rgba(220,38,38,0.02) 100%)" }}>
+      {/* Icon */}
+      <div className={`icon-box bg-gradient-to-br ${iconBg} shadow-lg`}>
+        {icon}
+      </div>
 
-        {/* Icon */}
-        <div className={`
-          flex-shrink-0 w-12 h-12 rounded-xl
-          bg-gradient-to-br ${iconBg}
-          flex items-center justify-center text-white text-[18px]
-          shadow-lg icon-glow
-          transition-transform duration-300 group-hover:scale-110
-        `}>
-          {icon}
-        </div>
-
-        {/* Text */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-white font-bold text-[15px] tracking-wide">{title}</span>
-            {badge && (
-              <span className={`badge ${badgeRed ? "badge-red" : ""}`}>{badge}</span>
-            )}
-          </div>
-          {subtitle && (
-            <p className="text-[#a07050] text-xs mt-0.5 truncate">{subtitle}</p>
+      {/* Text */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-white font-bold text-[15px] leading-tight truncate">
+            {title}
+          </span>
+          {badge && (
+            <span className={`badge ${badgeGreen ? "badge-green" : ""}`}>
+              {badge}
+            </span>
           )}
         </div>
+        {subtitle && (
+          <p className="text-[13px] mt-0.5 truncate" style={{ color: "#9a6035" }}>
+            {subtitle}
+          </p>
+        )}
+      </div>
 
-        {/* Arrow */}
-        <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
-                        bg-white/5 transition-all duration-300
-                        group-hover:bg-orange-500/15">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-               stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </div>
+      {/* Arrow */}
+      <div className="card-arrow">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2.5"
+             strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
       </div>
     </a>
   );
